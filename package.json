@@ -1,0 +1,10 @@
+{
+  "name": "jie-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "sync": "node scripts/update-works.mjs",
+    "dev": "node scripts/update-works.mjs --watch & python3 -m http.server 8000"
+  }
+}
