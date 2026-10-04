@@ -459,18 +459,14 @@ a {
 
 .detail-body .dialogue {
   margin: 28px 0;
-  padding: clamp(16px, 3vw, 26px);
-  border: 1px solid #aaa;
-  border-left: 4px solid #555;
-  border-radius: 8px;
-  background: #f3f3f3;
+  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid currentColor;
+  border-radius: 0;
+  background: transparent;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.85em;
   overflow-wrap: anywhere;
   line-height: 1.65;
-}
-
-.detail-body .dialogue-me {
-  background: #faf8f2;
-  border-left-color: #96846a;
 }
 
 .detail-body .dialogue p:last-child {
