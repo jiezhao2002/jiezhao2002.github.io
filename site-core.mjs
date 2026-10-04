@@ -2,6 +2,7 @@ export const pages = [
   { id: "experiments", label: "Experiments", title: "Projects", angle: -32 },
   { id: "visuals", label: "Visuals", title: "Visual Stuffs", angle: -10 },
   { id: "travel", label: "Travel?", title: "Travel Notes", angle: 13 },
+  { id: "writing", label: "Blog", title: "Blog", angle: 24 },
   { id: "home", label: "Home", title: "", angle: 35 },
 ];
 
@@ -46,6 +47,14 @@ export let baseWorks = [
     "summary": "Back in 2021, my favorite music player Xiami stopped its service, I still think they had the best recommendation algorithms. Xiami == 虾米 ...",
     "cover": "blog/visuals/shrimp.png",
     "md": "blog/visuals/shrimps-remain.md"
+  },
+  {
+    "id": "personality-magnification-and-spiral-carving",
+    "page": "writing",
+    "title": "人格，倍率，与螺旋雕刻的镜像。",
+    "summary": "我真是太喜欢三段式排比了！",
+    "cover": "linear-gradient(200deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
+    "md": "blog/writing/personality-magnification-and-spiral-carving.md"
   }
 ];
 
@@ -235,7 +244,7 @@ export function markdownToHtml(markdown) {
         const match = block.match(/!\[(.*?)\]\((.*?)\)/);
         return match ? `<img src="${escapeHtml(match[2])}" alt="${escapeHtml(match[1])}" />` : "";
       }
-      return `<p>${escapeHtml(block).replace(/\n/g, "<br />")}</p>`;
+      return `<p>${escapeHtml(block).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br />")}</p>`;
     })
     .join("");
 }

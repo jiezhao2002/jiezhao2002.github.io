@@ -42,7 +42,7 @@ function activePageId(currentRoute = route()) {
 
 function setPage(currentRoute = route()) {
   const pageId = activePageId(currentRoute);
-  const page = pages.find((item) => item.id === pageId) || pages[3];
+  const page = pages.find((item) => item.id === pageId) || pages.find((item) => item.id === "home");
   shell.dataset.page = currentRoute.type === "detail" ? "detail" : page.id;
   title.innerHTML = page.title;
   document.querySelectorAll(".record").forEach((record) => {

@@ -204,17 +204,20 @@ a {
 .site-shell[data-page="experiments"] .home-copy,
 .site-shell[data-page="visuals"] .home-copy,
 .site-shell[data-page="travel"] .home-copy,
+.site-shell[data-page="writing"] .home-copy,
 .site-shell[data-page="detail"] .home-copy,
 .site-shell[data-page="experiments"] .portrait,
 .site-shell[data-page="visuals"] .portrait,
 .site-shell[data-page="travel"] .portrait,
+.site-shell[data-page="writing"] .portrait,
 .site-shell[data-page="detail"] .portrait {
   display: none;
 }
 
 .site-shell[data-page="experiments"] .showcase,
 .site-shell[data-page="visuals"] .showcase,
-.site-shell[data-page="travel"] .showcase {
+.site-shell[data-page="travel"] .showcase,
+.site-shell[data-page="writing"] .showcase {
   display: block;
 }
 
@@ -228,7 +231,8 @@ a {
 
 .site-shell[data-page="experiments"],
 .site-shell[data-page="visuals"],
-.site-shell[data-page="travel"] {
+.site-shell[data-page="travel"],
+.site-shell[data-page="writing"] {
   padding-top: clamp(40px, 6vw, 72px);
   padding-bottom: 320px;
 }
@@ -539,7 +543,8 @@ a {
 
   .site-shell[data-page="open-source"],
   .site-shell[data-page="design"],
-  .site-shell[data-page="travel"] {
+  .site-shell[data-page="travel"],
+  .site-shell[data-page="writing"] {
     padding-top: 34px;
     padding-bottom: 60px;
   }
