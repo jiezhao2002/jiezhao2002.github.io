@@ -10,7 +10,7 @@ import {
   routeFromHash,
   worksForPage,
   worksFromSearch,
-} from "./site-core.mjs?v=20261004";
+} from "./site-core.mjs?v=20261004-dialogue";
 
 let works = worksFromSearch(window.location.search, baseWorks);
 const shell = document.querySelector(".site-shell");

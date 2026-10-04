@@ -457,6 +457,26 @@ a {
   margin: 0 0 22px;
 }
 
+.detail-body .dialogue {
+  margin: 28px 0;
+  padding: clamp(16px, 3vw, 26px);
+  border: 1px solid #aaa;
+  border-left: 4px solid #555;
+  border-radius: 8px;
+  background: #f3f3f3;
+  overflow-wrap: anywhere;
+  line-height: 1.65;
+}
+
+.detail-body .dialogue-me {
+  background: #faf8f2;
+  border-left-color: #96846a;
+}
+
+.detail-body .dialogue p:last-child {
+  margin-bottom: 0;
+}
+
 .detail-body img {
   display: block;
   width: min(100%, 620px);

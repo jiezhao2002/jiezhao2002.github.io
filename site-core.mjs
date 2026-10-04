@@ -238,6 +238,11 @@ export function markdownToHtml(markdown) {
     .trim()
     .split(/\n{2,}/)
     .map((block) => {
+      if (block.startsWith("> ")) {
+        const quoted = block.split("\n").map((line) => line.replace(/^> ?/, "")).join("\n");
+        const speaker = quoted.startsWith("我：") ? "dialogue-me" : "dialogue-ai";
+        return `<blockquote class="dialogue ${speaker}">${markdownToHtml(quoted)}</blockquote>`;
+      }
       if (block.startsWith("# ")) return `<h2>${escapeHtml(block.slice(2))}</h2>`;
       if (block.startsWith("## ")) return `<h3>${escapeHtml(block.slice(3))}</h3>`;
       if (block.startsWith("![")) {
