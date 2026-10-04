@@ -49,11 +49,27 @@ export let baseWorks = [
     "md": "blog/visuals/shrimps-remain.md"
   },
   {
+    "id": "moral-machine-en",
+    "page": "writing",
+    "title": "The Moral Machine",
+    "summary": "I've never finished a single book by ___, but I feel that these thoughts circling in my head may also have flowed through his. A person i...",
+    "cover": "linear-gradient(200deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
+    "md": "blog/writing/moral-machine-en.md"
+  },
+  {
+    "id": "moral-machine",
+    "page": "writing",
+    "title": "道德机器",
+    "summary": "我从来没读完过___的一本书，但我觉得我脑子里围绕着打转的这些想法可能也流经过他的脑子。人是一扇扇门墙组成的网络，是苏州园林，或者白鼠迷宫，思维在这里移步换景地流窜。游击、逃亡、捕获、计算。",
+    "cover": "linear-gradient(110deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
+    "md": "blog/writing/moral-machine.md"
+  },
+  {
     "id": "personality-magnification-and-spiral-carving-en",
     "page": "writing",
     "title": "Personality, Magnification, and a Mirror Carved in Spirals.",
     "summary": "I really do love parallel phrases in threes!",
-    "cover": "linear-gradient(200deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
+    "cover": "linear-gradient(128deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
     "md": "blog/writing/personality-magnification-and-spiral-carving-en.md"
   },
   {
@@ -61,7 +77,7 @@ export let baseWorks = [
     "page": "writing",
     "title": "人格，倍率，与螺旋雕刻的镜像。",
     "summary": "我真是太喜欢三段式排比了！",
-    "cover": "linear-gradient(110deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
+    "cover": "linear-gradient(146deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
     "md": "blog/writing/personality-magnification-and-spiral-carving.md"
   }
 ];
