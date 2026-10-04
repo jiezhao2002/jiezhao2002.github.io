@@ -53,7 +53,7 @@ export let baseWorks = [
     "page": "writing",
     "title": "The Moral Machine",
     "summary": "I've never finished a single book by ___, but I feel that these thoughts circling in my head may also have flowed through his. A person i...",
-    "cover": "linear-gradient(200deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
+    "cover": "blog/writing/moral-machine-chat.png",
     "md": "blog/writing/moral-machine-en.md"
   },
   {
@@ -61,7 +61,7 @@ export let baseWorks = [
     "page": "writing",
     "title": "道德机器",
     "summary": "我从来没读完过___的一本书，但我觉得我脑子里围绕着打转的这些想法可能也流经过他的脑子。人是一扇扇门墙组成的网络，是苏州园林，或者白鼠迷宫，思维在这里移步换景地流窜。游击、逃亡、捕获、计算。",
-    "cover": "linear-gradient(110deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
+    "cover": "blog/writing/moral-machine-chat.png",
     "md": "blog/writing/moral-machine.md"
   },
   {

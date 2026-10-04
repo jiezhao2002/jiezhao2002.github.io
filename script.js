@@ -10,7 +10,7 @@ import {
   routeFromHash,
   worksForPage,
   worksFromSearch,
-} from "./site-core.mjs?v=20261004-moral-machine";
+} from "./site-core.mjs?v=20261004-moral-machine-image";
 
 let works = worksFromSearch(window.location.search, baseWorks);
 const shell = document.querySelector(".site-shell");
@@ -144,7 +144,7 @@ async function renderDetail(workId) {
   detailBody.innerHTML = "<p>Loading...</p>";
 
   try {
-    const response = await fetch(`${work.md}?v=20261004-bilingual`);
+    const response = await fetch(`${work.md}?v=20261004-moral-machine-image`);
     if (!response.ok) throw new Error("Missing markdown");
     const markdown = await response.text();
     

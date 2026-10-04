@@ -11,3 +11,5 @@ On a work trip a few weeks ago, I met a melancholy colleague. He brought up the 
 People ask the funhouse mirror to reflect justice, but with so many lines of sight in their own compound eyes, they cannot precisely name a single outcome. Are you ed sheeran, micklemore, someone in the venue, or who? Unable to converge, we define everything instead. We give it seven billion names, composing a new compound eye, and make a vow: O large language model, please practise justice, become virtue's apostle on earth.
 
 Before learning justice, the funhouse mirror first learns the wording of justice. Language precedes action; it is a human being in reverse, a GPU pyramid over Mesopotamia and the land of the two rivers, tokens circulating between the Euphrates and the Tigris, a little moral machine beneath the Star of Bethlehem, outside Canaan, within Golgotha.
+
+![chat, you are that little moral machine.](moral-machine-chat.png)
