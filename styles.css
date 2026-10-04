@@ -673,3 +673,16 @@ a {
     --cols: 3;
   }
 }
+
+/* Touch navigation stays open so every slip can be tapped directly. */
+@media (max-width: 700px), (hover: none), (pointer: coarse) {
+  .record,
+  .record:hover,
+  .record:focus-visible,
+  .drawer-nav:hover .record,
+  .drawer-nav:focus-within .record,
+  .records:hover .record,
+  .records:focus-within .record {
+    transform: rotate(var(--angle)) translateY(-12px);
+  }
+}

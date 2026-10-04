@@ -26,7 +26,6 @@ const detailKicker = document.querySelector(".detail-kicker");
 const detailTitle = document.querySelector(".detail-title");
 const detailSummary = document.querySelector(".detail-summary");
 const detailBody = document.querySelector(".detail-body");
-let selectedId = null;
 
 function route() {
   return routeFromHash(window.location.hash, pages);
@@ -75,33 +74,6 @@ function renderRecords() {
     const label = document.createElement("span");
     label.textContent = page.label;
     record.append(label);
-
-    record.addEventListener("pointerdown", (event) => {
-      if ((event.pointerType === "touch" || event.pointerType === "pen") && selectedId !== page.id) {
-        event.preventDefault();
-        record.dataset.armTap = "true";
-        selectedId = page.id;
-        document.querySelectorAll(".record").forEach((item) => {
-          item.classList.toggle("is-selected", item.dataset.id === page.id);
-        });
-      }
-    });
-
-    record.addEventListener("click", (event) => {
-      if (record.dataset.armTap === "true") {
-        event.preventDefault();
-        delete record.dataset.armTap;
-        return;
-      }
-      const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-      if (!canHover && selectedId !== page.id) {
-        event.preventDefault();
-        selectedId = page.id;
-        document.querySelectorAll(".record").forEach((item) => {
-          item.classList.toggle("is-selected", item.dataset.id === page.id);
-        });
-      }
-    });
 
     records.append(record);
   });
@@ -191,15 +163,7 @@ async function renderDetail(workId) {
 }
 
 window.addEventListener("hashchange", () => {
-  selectedId = null;
   renderRecords();
-});
-
-document.addEventListener("pointerdown", (event) => {
-  if (!event.target.closest(".record")) {
-    selectedId = null;
-    document.querySelectorAll(".record").forEach((record) => record.classList.remove("is-selected"));
-  }
 });
 
 window.__jieSite = {
