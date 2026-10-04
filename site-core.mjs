@@ -25,6 +25,14 @@ export let baseWorks = [
     "md": "blog/experiments/narrate.md"
   },
   {
+    "id": "tree",
+    "page": "experiments",
+    "title": "Tree",
+    "summary": "A hand-drawn tree of connected ideas.",
+    "cover": "blog/experiments/tree-preview.png",
+    "md": "blog/experiments/tree.md"
+  },
+  {
     "id": "home-cookin",
     "page": "visuals",
     "title": "家常音乐",
@@ -160,6 +168,16 @@ export async function discoverAllWorks() {
 }
 
 const shapes = ["wide", "square", "tall", "poster", "panorama"];
+
+const experimentApps = { tree: "tree/" };
+
+export function workHref(work) {
+  return experimentApps[work.id] || `#post/${work.id}`;
+}
+
+export function appHref(work) {
+  return experimentApps[work.id] || null;
+}
 const stressNames = [
   "Community Tool",
   "Archive Sketch",

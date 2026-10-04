@@ -1,0 +1,2 @@
+# Compiled Three.js assets include generated shader source.
+tree/assets/* -diff linguist-generated=true

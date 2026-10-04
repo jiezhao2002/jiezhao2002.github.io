@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   activePageId,
+  appHref,
   baseWorks,
   cardClassForWork,
   createStressWorks,
@@ -13,6 +14,7 @@ import {
   routeFromHash,
   worksForPage,
   worksFromSearch,
+  workHref,
 } from "../site-core.mjs";
 
 test("routes known pages, details, and unknown hashes", () => {
@@ -22,8 +24,9 @@ test("routes known pages, details, and unknown hashes", () => {
 });
 
 test("detail routes resolve to the owning page", () => {
-  assert.equal(pageForWork("interface-notes", baseWorks), "visuals");
-  assert.equal(activePageId({ type: "detail", id: "field-card" }, baseWorks), "travel");
+  const fixtures = [{ id: "interface-notes", page: "visuals" }, { id: "field-card", page: "travel" }];
+  assert.equal(pageForWork("interface-notes", fixtures), "visuals");
+  assert.equal(activePageId({ type: "detail", id: "field-card" }, fixtures), "travel");
 });
 
 test("active page slip is sorted to the front", () => {
@@ -33,8 +36,8 @@ test("active page slip is sorted to the front", () => {
 
 test("showcase helpers pick page work and featured work", () => {
   const experimentsWorks = worksForPage("experiments", baseWorks);
-  assert.equal(experimentsWorks.length, 2);
-  assert.equal(featuredWork("experiments", baseWorks).id, "narrate");
+  assert(experimentsWorks.some((work) => work.id === "tree"));
+  assert.equal(featuredWork("experiments", baseWorks), experimentsWorks[0]);
 });
 
 test("stress mode creates a large mixed shelf for browsing tests", () => {
@@ -51,7 +54,16 @@ test("URL search opts into stress data", () => {
 });
 
 test("card classes preserve shape and assign tones", () => {
-  assert.equal(cardClassForWork({ shape: "panorama" }, 6), "work-card panorama tone-1");
+  assert.equal(cardClassForWork({ id: "test", shape: "panorama" }, 6), "work-card panorama tone-3");
+});
+
+test("Tree opens the application from Experiments without changing other project routes", () => {
+  const tree = baseWorks.find((work) => work.id === "tree");
+  assert.equal(tree.page, "experiments");
+  assert.equal(workHref(tree), "tree/");
+  assert.equal(appHref(tree), "tree/");
+  assert.equal(workHref({ id: "narrate" }), "#post/narrate");
+  assert.equal(appHref({ id: "narrate" }), null);
 });
 
 test("markdown renderer handles headings, images, line breaks, and escaping", () => {

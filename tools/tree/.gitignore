@@ -1,0 +1,15 @@
+node_modules/
+dist/
+artifacts/
+__pycache__/
+.venv/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+.env
+.env.local
+.env.*.local
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.wrangler/

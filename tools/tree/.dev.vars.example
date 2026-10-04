@@ -1,0 +1,2 @@
+# Local Worker only. Production uses: npx wrangler secret put GROQ_API_KEY
+GROQ_API_KEY=replace-with-your-key

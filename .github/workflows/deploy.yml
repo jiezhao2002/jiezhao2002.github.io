@@ -1,17 +1,16 @@
-name: Sync and Deploy Blog
+name: Validate Site
 
 on:
   push:
     branches:
-      - main  # 或者是你的主分支名
+      - master
+  pull_request:
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 
 jobs:
-  build-and-deploy:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,16 +19,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
-      - name: Sync blog index
-        run: node scripts/update-works.mjs
+      - name: Test site navigation
+        run: npm test
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
+      - name: Build public site
+        run: npm run build
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Test Tree and Worker
+        run: npm --prefix tools/tree test

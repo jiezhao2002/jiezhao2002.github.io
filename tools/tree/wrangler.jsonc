@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "jie-tree-api",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-04",
+  "workers_dev": true,
+  "vars": {
+    "GROQ_MODEL": "openai/gpt-oss-20b",
+    "ALLOWED_ORIGINS": "https://jiezhao2002.github.io,http://localhost:5174,http://localhost:8000,http://127.0.0.1:5174,http://127.0.0.1:8000",
+    "DAILY_REQUEST_LIMIT": "100",
+    "GLOBAL_MINUTE_LIMIT": "4"
+  },
+  "ratelimits": [
+    {
+      "name": "VISITOR_RATE_LIMITER",
+      "namespace_id": "20021004",
+      "simple": { "limit": 6, "period": 60 }
+    }
+  ],
+  "durable_objects": {
+    "bindings": [{ "name": "BUDGET", "class_name": "GenerationBudget" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["GenerationBudget"] }]
+}

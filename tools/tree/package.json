@@ -1,0 +1,34 @@
+{
+  "name": "tree-knowledge-explorer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.config.ts --host 127.0.0.1",
+    "backend": "backend/.venv/bin/python -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 7860",
+    "worker:dev": "wrangler dev --ip 127.0.0.1 --port 8787",
+    "worker:check": "tsc -p worker/tsconfig.json",
+    "worker:deploy": "npm run worker:check && wrangler deploy",
+    "test": "node --test tests/*.test.mjs",
+    "build": "tsc --noEmit && npm run worker:check && vite build --config vite.config.ts",
+    "preview": "vite preview --config vite.config.ts --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@react-three/fiber": "^9.0.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.171.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261004.1",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.171.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3",
+    "wrangler": "^4.147.0"
+  }
+}

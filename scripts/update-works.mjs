@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync, writeFileSync, existsSync, watch } from 'fs';
 import { join, relative } from 'path';
+import { baseWorks as previousWorks } from '../site-core.mjs';
 
 const BLOG_DIR = './blog';
 const SITE_CORE_PATH = './site-core.mjs';
@@ -45,7 +46,8 @@ function update() {
       
       // Look for the first image in markdown: ![alt](url)
       const imageMatch = content.match(/!\[.*?\]\((.*?)\)/);
-      let cover = `linear-gradient(${110 + (baseWorks.length % 6) * 18}deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)`;
+      let cover = previousWorks.find(work => work.id === id)?.cover
+        || `linear-gradient(${110 + (baseWorks.length % 6) * 18}deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)`;
       
       if (imageMatch) {
         const imageUrl = imageMatch[1];

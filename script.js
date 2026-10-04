@@ -1,8 +1,10 @@
 import {
   activePageId as resolveActivePageId,
+  appHref,
   baseWorks,
   cardClassForWork,
   featuredWork,
+  discoverAllWorks,
   markdownToHtml,
   orderedPages as orderPages,
   pageForWork as resolvePageForWork,
@@ -10,7 +12,8 @@ import {
   routeFromHash,
   worksForPage,
   worksFromSearch,
-} from "./site-core.mjs?v=20261004-moral-machine-image";
+  workHref,
+} from "./site-core.mjs?v=20261004-tree";
 
 let works = worksFromSearch(window.location.search, baseWorks);
 const shell = document.querySelector(".site-shell");
@@ -26,6 +29,7 @@ const detailKicker = document.querySelector(".detail-kicker");
 const detailTitle = document.querySelector(".detail-title");
 const detailSummary = document.querySelector(".detail-summary");
 const detailBody = document.querySelector(".detail-body");
+const detailApp = document.querySelector(".detail-app");
 
 function route() {
   return routeFromHash(window.location.hash, pages);
@@ -89,7 +93,7 @@ function renderShowcase(pageId) {
 
   pageWorks.forEach((work, index) => {
     const card = document.createElement("a");
-    card.href = `#post/${work.id}`;
+    card.href = workHref(work);
     card.className = cardClassForWork(work, index);
     
     // Handle image vs gradient background
@@ -141,10 +145,18 @@ async function renderDetail(workId) {
   detailKicker.textContent = pages.find((page) => page.id === work.page)?.label || "";
   detailTitle.textContent = work.title;
   detailSummary.textContent = work.summary;
+  const application = appHref(work);
+  detailApp.hidden = !application;
+  if (application) {
+    detailApp.href = application;
+    detailApp.textContent = `Open ${work.title}`;
+  } else {
+    detailApp.removeAttribute("href");
+  }
   detailBody.innerHTML = "<p>Loading...</p>";
 
   try {
-    const response = await fetch(`${work.md}?v=20261004-moral-machine-image`);
+    const response = await fetch(`${work.md}?v=20261004-tree`);
     if (!response.ok) throw new Error("Missing markdown");
     const markdown = await response.text();
     

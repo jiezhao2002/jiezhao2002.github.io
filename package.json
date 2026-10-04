@@ -3,8 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test test/*.test.mjs",
     "sync": "node scripts/update-works.mjs",
+    "build": "npm run sync && npm --prefix tools/tree ci && npm --prefix tools/tree run build && node scripts/build-site.mjs",
+    "publish:tree": "npm --prefix tools/tree run build && node scripts/build-site.mjs --sync-tree && npm run sync",
     "dev": "node scripts/update-works.mjs --watch & python3 -m http.server 8000"
   }
 }
