@@ -172,7 +172,7 @@ async function renderDetail(workId) {
   detailBody.innerHTML = "<p>Loading...</p>";
 
   try {
-    const response = await fetch(work.md);
+    const response = await fetch(`${work.md}?v=20261004-dialogue`);
     if (!response.ok) throw new Error("Missing markdown");
     const markdown = await response.text();
     
