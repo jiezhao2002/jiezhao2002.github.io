@@ -49,11 +49,19 @@ export let baseWorks = [
     "md": "blog/visuals/shrimps-remain.md"
   },
   {
+    "id": "personality-magnification-and-spiral-carving-en",
+    "page": "writing",
+    "title": "Personality, Magnification, and a Mirror Carved in Spirals.",
+    "summary": "I really do love parallel phrases in threes!",
+    "cover": "linear-gradient(200deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
+    "md": "blog/writing/personality-magnification-and-spiral-carving-en.md"
+  },
+  {
     "id": "personality-magnification-and-spiral-carving",
     "page": "writing",
     "title": "人格，倍率，与螺旋雕刻的镜像。",
     "summary": "我真是太喜欢三段式排比了！",
-    "cover": "linear-gradient(200deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
+    "cover": "linear-gradient(110deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
     "md": "blog/writing/personality-magnification-and-spiral-carving.md"
   }
 ];
@@ -240,7 +248,7 @@ export function markdownToHtml(markdown) {
     .map((block) => {
       if (block.startsWith("> ")) {
         const quoted = block.split("\n").map((line) => line.replace(/^> ?/, "")).join("\n");
-        const speaker = quoted.startsWith("我：") ? "dialogue-me" : "dialogue-ai";
+        const speaker = /^(我：|Me:)/.test(quoted) ? "dialogue-me" : "dialogue-ai";
         return `<blockquote class="dialogue ${speaker}">${markdownToHtml(quoted)}</blockquote>`;
       }
       if (block.startsWith("# ")) return `<h2>${escapeHtml(block.slice(2))}</h2>`;
