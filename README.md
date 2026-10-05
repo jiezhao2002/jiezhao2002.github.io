@@ -15,6 +15,10 @@ npm test
 
 Commit the updated source, `tree/`, and blog index, then push to `master`. Keep the generated assets together with `tree/index.html`. Visitors use the Cloudflare API, not your local computer. See `tools/tree/README.md` for API deployment, key rotation, limits, and local Ollama.
 
+## Openworld（自由）
+
+Openworld appears under Experiments and opens at `/openworld/`. Source is in `tools/openworld/`; `npm --prefix tools/openworld run build:pages` creates `tools/openworld/dist/`. `node scripts/build-site.mjs --sync-openworld` collects both apps into `_site/` and updates the committed `openworld/` build used by GitHub Pages. Its short entry lives in `blog/experiments/openworld.md`; run `npm run sync` after changing it.
+
 ## Local Preview
 
 ```bash

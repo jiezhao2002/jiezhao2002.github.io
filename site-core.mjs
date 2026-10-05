@@ -25,6 +25,14 @@ export let baseWorks = [
     "md": "blog/experiments/narrate.md"
   },
   {
+    "id": "openworld",
+    "page": "experiments",
+    "title": "Openworld（自由）",
+    "summary": "一个自由画布。",
+    "cover": "blog/experiments/openworld-preview.svg",
+    "md": "blog/experiments/openworld.md"
+  },
+  {
     "id": "tree",
     "page": "experiments",
     "title": "Tree",
@@ -169,7 +177,7 @@ export async function discoverAllWorks() {
 
 const shapes = ["wide", "square", "tall", "poster", "panorama"];
 
-const experimentApps = { tree: "tree/" };
+const experimentApps = { tree: "tree/", openworld: "openworld/" };
 
 export function workHref(work) {
   return experimentApps[work.id] || `#post/${work.id}`;

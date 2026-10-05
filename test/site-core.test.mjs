@@ -37,6 +37,7 @@ test("active page slip is sorted to the front", () => {
 test("showcase helpers pick page work and featured work", () => {
   const experimentsWorks = worksForPage("experiments", baseWorks);
   assert(experimentsWorks.some((work) => work.id === "tree"));
+  assert(experimentsWorks.some((work) => work.id === "openworld"));
   assert.equal(featuredWork("experiments", baseWorks), experimentsWorks[0]);
 });
 
@@ -57,11 +58,13 @@ test("card classes preserve shape and assign tones", () => {
   assert.equal(cardClassForWork({ id: "test", shape: "panorama" }, 6), "work-card panorama tone-3");
 });
 
-test("Tree opens the application from Experiments without changing other project routes", () => {
-  const tree = baseWorks.find((work) => work.id === "tree");
-  assert.equal(tree.page, "experiments");
-  assert.equal(workHref(tree), "tree/");
-  assert.equal(appHref(tree), "tree/");
+test("Experiments opens Tree and Openworld applications without changing other project routes", () => {
+  for (const id of ["tree", "openworld"]) {
+    const app = baseWorks.find((work) => work.id === id);
+    assert.equal(app.page, "experiments");
+    assert.equal(workHref(app), `${id}/`);
+    assert.equal(appHref(app), `${id}/`);
+  }
   assert.equal(workHref({ id: "narrate" }), "#post/narrate");
   assert.equal(appHref({ id: "narrate" }), null);
 });
