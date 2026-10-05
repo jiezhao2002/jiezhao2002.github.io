@@ -10,6 +10,7 @@ import WorldCanvas from '@/components/WorldCanvas';
 import { emptyResidentDraft, residentName, pixelImage, validResidentDraft, validateResident, resolveAccountDraft, type Resident, type LocalDraftAlternative } from '@/lib/world';
 import { canMoveResident, residentPositions, type ResidentPositions, type PositionPatch } from '@/lib/positions';
 import { supabase, supabaseURL, supabasePublishableKey } from '@/lib/supabase';
+import { restoreAuthSession } from '@/lib/auth';
 const emptyDraft = emptyResidentDraft;
 const anonymousDraftKey = 'openworld-anonymous-draft';
 const accountDraftKey = (id: string) => `openworld-draft:${id}`;
@@ -55,7 +56,7 @@ export default function Home(){
  const refresh=useCallback(async()=>{if(!supabase)return;const seq=++request.current;const {data,error}=await supabase.from('residents').select('*').order('created_at',{ascending:true});if(!live.current||seq!==request.current)return;if(error)setNotice(error.code==='PGRST205'?'数据库尚未初始化。':'暂时无法读取世界，请稍后重试。');else{const pending=pendingPosition.current;const rows=((data||[]) as Resident[]).map(resident=>resident.user_id===pending?.residentId?{...resident,...pending.patch}:resident);setResidents(rows);const own=rows.find(row=>row.user_id===currentOwner.current);if(own){const position=residentPositions(own);accountPosition.current=position;setDraft(value=>value.user_id===own.user_id?{...value,...position}:value);}}setLoading(false);},[]);
  useEffect(()=>{
   if(!supabase)return;live.current=true;let mounted=true;const client=supabase;
-  client.auth.getSession().then(({data,error})=>{if(mounted){setUser(data.session?.user??null);setAuthResolved(true);if(error)setNotice('登录状态读取失败，请重试。');}}).catch(()=>{if(mounted){setAuthResolved(true);setNotice('登录状态读取失败，请重试。');}});
+  restoreAuthSession(client.auth,{readURL:()=>window.location.href,replaceURL:url=>window.history.replaceState(window.history.state,'',url)}).then(({session,notice:authNotice})=>{if(mounted){setUser(session?.user??null);setAuthResolved(true);if(authNotice)setNotice(authNotice);}}).catch(()=>{if(mounted){setAuthResolved(true);setNotice('登录状态读取失败，请重试。');}});
   const {data:listener}=client.auth.onAuthStateChange((_,session)=>{setUser(session?.user??null);setAuthResolved(true);if(session)setAuth(false);});
   void refresh();const channel=client.channel('world-residents').on('postgres_changes',{event:'*',schema:'public',table:'residents'},()=>void refresh()).subscribe();const timer=setInterval(()=>void refresh(),30000);
   return()=>{mounted=false;live.current=false;listener.subscription.unsubscribe();void client.removeChannel(channel);clearInterval(timer);};
