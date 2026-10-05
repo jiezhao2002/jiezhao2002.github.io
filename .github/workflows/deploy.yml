@@ -29,3 +29,6 @@ jobs:
 
       - name: Test Tree and Worker
         run: npm --prefix tools/tree test
+
+      - name: Test Openworld
+        run: npm --prefix tools/openworld test
