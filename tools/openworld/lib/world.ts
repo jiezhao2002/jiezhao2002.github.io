@@ -2,6 +2,7 @@ export const SIZE = 50;
 export type Pixels = (string | null)[];
 export type Message = { text: string; soundcloud: string };
 export type Resident = { user_id: string; name: string; avatar: Pixels; scenery: Pixels; messages: Message[]; x: number; y: number };
+export const residentName = (name?: string) => name?.trim() || '佚名';
 export const blank = (): Pixels => Array(SIZE * SIZE).fill(null);
 export const coloredCount = (pixels: Pixels) => pixels.filter(Boolean).length;
 export function validPixels(value: unknown): value is Pixels { return Array.isArray(value) && value.length === 2500 && value.every(c => c === null || (typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c))); }

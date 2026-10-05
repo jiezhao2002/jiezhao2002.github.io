@@ -5,7 +5,7 @@ export type SoundCloudWidget = {
  play(): void;
  pause(): void;
  seekTo(milliseconds: number): void;
- getCurrentSound(callback: (sound: { title?: string } | null) => void): void;
+ getCurrentSound(callback: (sound: { title?: string; user?: { username?: string } } | null) => void): void;
 };
 type WidgetFactory = ((iframe: HTMLIFrameElement) => SoundCloudWidget) & { Events: Record<'READY' | 'PLAY' | 'PAUSE' | 'FINISH' | 'PLAY_PROGRESS' | 'SEEK' | 'ERROR', string> };
 declare global { interface Window { SC?: { Widget: WidgetFactory } } }
