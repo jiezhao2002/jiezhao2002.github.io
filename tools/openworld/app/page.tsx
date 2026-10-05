@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import ResidentEditor from '@/components/ResidentEditor';
 import MusicPlayer, { type MusicPlayerHandle } from '@/components/MusicPlayer';
+import WorldCanvas from '@/components/WorldCanvas';
 import { emptyResidentDraft, residentName, pixelImage, validResidentDraft, validateResident, resolveAccountDraft, type Resident, type LocalDraftAlternative } from '@/lib/world';
+import { canMoveResident, residentPositions, type ResidentPositions, type PositionPatch } from '@/lib/positions';
 import { supabase, supabaseURL, supabasePublishableKey } from '@/lib/supabase';
 const emptyDraft = emptyResidentDraft;
 const anonymousDraftKey = 'openworld-anonymous-draft';
@@ -16,11 +18,11 @@ function readDraft(key: string): Resident | null {
  try {
   const value: unknown = JSON.parse(localStorage.getItem(key) || 'null');
   if (!validResidentDraft(value)) return null;
-  return {user_id:value.user_id,name:value.name,avatar:value.avatar,scenery:value.scenery,messages:value.messages,x:value.x,y:value.y};
+  return {user_id:value.user_id,name:value.name,avatar:value.avatar,scenery:value.scenery,messages:value.messages,x:value.x,y:value.y,scenery_x:value.scenery_x,scenery_y:value.scenery_y};
  } catch { return null; }
 }
 export default function Home(){
- const [residents,setResidents]=useState<Resident[]>([]);const [selected,setSelected]=useState<Resident|null>(null);const [line,setLine]=useState(0);const [editor,setEditor]=useState(false);const [auth,setAuth]=useState(false);const [user,setUser]=useState<User|null>(null);const [draft,setDraft]=useState<Resident>(emptyDraft);const [notice,setNotice]=useState('');const [saving,setSaving]=useState(false);const [loading,setLoading]=useState(!!supabase);const [zoom,setZoom]=useState(1);const [pan,setPan]=useState({x:0,y:0});const [intro,setIntro]=useState(true);const [draftReady,setDraftReady]=useState(false);const drag=useRef<{x:number;y:number;px:number;py:number}|null>(null);const moved=useRef(false);const anonymousDraft=useRef<Resident>(emptyDraft());const adoptedAnonymous=useRef(false);const accountPosition=useRef<{x:number;y:number}|null>(null);const accountRequest=useRef(0);const request=useRef(0);const live=useRef(true);
+ const [residents,setResidents]=useState<Resident[]>([]);const [selected,setSelected]=useState<Resident|null>(null);const [line,setLine]=useState(0);const [editor,setEditor]=useState(false);const [auth,setAuth]=useState(false);const [user,setUser]=useState<User|null>(null);const [draft,setDraft]=useState<Resident>(emptyDraft);const [notice,setNotice]=useState('');const [saving,setSaving]=useState(false);const [positionBusy,setPositionBusy]=useState(false);const [loading,setLoading]=useState(!!supabase);const [zoom]=useState(1);const [pan,setPan]=useState({x:0,y:0});const [intro,setIntro]=useState(true);const [draftReady,setDraftReady]=useState(false);const anonymousDraft=useRef<Resident>(emptyDraft());const adoptedAnonymous=useRef(false);const accountPosition=useRef<ResidentPositions|null>(null);const accountRequest=useRef(0);const request=useRef(0);const live=useRef(true);const currentOwner=useRef<string|null>(null);currentOwner.current=user?.id??null;const pendingPosition=useRef<{residentId:string;patch:PositionPatch}|null>(null);
  const [authResolved,setAuthResolved]=useState(!supabase);
  const [accountReady,setAccountReady]=useState(!supabase);
  const [accountLoading,setAccountLoading]=useState(!!supabase);
@@ -50,7 +52,7 @@ export default function Home(){
   try{localStorage.setItem(user?accountDraftKey(user.id):anonymousDraftKey,JSON.stringify(draft));if(!user)anonymousDraft.current=draft;}
   catch{setNotice('浏览器未允许保存草稿，请在关闭前完成发布。');}
  },[draft,draftReady,authResolved,accountReady,user]);
- const refresh=useCallback(async()=>{if(!supabase)return;const seq=++request.current;const {data,error}=await supabase.from('residents').select('*').order('created_at',{ascending:true});if(!live.current||seq!==request.current)return;if(error)setNotice(error.code==='PGRST205'?'数据库尚未初始化。':'暂时无法读取世界，请稍后重试。');else setResidents((data||[]) as Resident[]);setLoading(false);},[]);
+ const refresh=useCallback(async()=>{if(!supabase)return;const seq=++request.current;const {data,error}=await supabase.from('residents').select('*').order('created_at',{ascending:true});if(!live.current||seq!==request.current)return;if(error)setNotice(error.code==='PGRST205'?'数据库尚未初始化。':'暂时无法读取世界，请稍后重试。');else{const pending=pendingPosition.current;const rows=((data||[]) as Resident[]).map(resident=>resident.user_id===pending?.residentId?{...resident,...pending.patch}:resident);setResidents(rows);const own=rows.find(row=>row.user_id===currentOwner.current);if(own){const position=residentPositions(own);accountPosition.current=position;setDraft(value=>value.user_id===own.user_id?{...value,...position}:value);}}setLoading(false);},[]);
  useEffect(()=>{
   if(!supabase)return;live.current=true;let mounted=true;const client=supabase;
   client.auth.getSession().then(({data,error})=>{if(mounted){setUser(data.session?.user??null);setAuthResolved(true);if(error)setNotice('登录状态读取失败，请重试。');}}).catch(()=>{if(mounted){setAuthResolved(true);setNotice('登录状态读取失败，请重试。');}});
@@ -69,10 +71,10 @@ export default function Home(){
     const {data,error}=await client.from('residents').select('*').eq('user_id',userId).maybeSingle();if(error)throw error;
     if(!active||seq!==accountRequest.current)return;
     if(data&&!validResidentDraft(data))throw new Error('无法读取已保存的形象。');
-    const saved=data as Resident|null;const resolved=resolveAccountDraft(userId,saved,anonymousDraft.current,local);
+    const pending=pendingPosition.current;const saved=data?(pending&&data.user_id===pending.residentId?{...data,...pending.patch}:data) as Resident:null;const resolved=resolveAccountDraft(userId,saved,anonymousDraft.current,local);
     const localAlternative=resolved.alternatives.find(alternative=>alternative.kind==='account');
     if(localAlternative)try{localStorage.setItem(accountDraftBackupKey(userId),JSON.stringify(localAlternative.draft));}catch{}
-    accountPosition.current=saved?{x:saved.x,y:saved.y}:null;adoptedAnonymous.current=resolved.adoptedAnonymous;
+    accountPosition.current=saved?residentPositions(saved):null;adoptedAnonymous.current=resolved.adoptedAnonymous;
     setDraft(resolved.draft);setAlternatives(resolved.alternatives);setAccountReady(true);
    }catch{if(active&&seq===accountRequest.current){setAccountError(true);setNotice('无法读取你的形象，请重新读取后再保存。本机草稿已保留。');}}
    finally{if(active&&seq===accountRequest.current)setAccountLoading(false);}
@@ -108,30 +110,49 @@ export default function Home(){
   if(user)try{localStorage.removeItem(accountDraftBackupKey(user.id));}catch{}
   setAlternatives([]);
  };
+ const moveResident=async(resident:Resident,patch:PositionPatch)=>{
+  const ownerId=user?.id;if(!supabase||!canMoveResident(ownerId,resident.user_id)||!accountReady||saving||pendingPosition.current)return;
+  const accountSeq=accountRequest.current;const previous=residentPositions(resident);const next={...previous,...patch};const pending={residentId:resident.user_id,patch};pendingPosition.current=pending;request.current++;setPositionBusy(true);
+  setResidents(rows=>rows.map(row=>row.user_id===ownerId?{...row,...patch}:row));accountPosition.current=next;setDraft(value=>value.user_id===ownerId?{...value,...next}:value);
+  try{
+   const {data:session,error:sessionError}=await supabase.auth.getSession();if(sessionError)throw sessionError;
+   if(session.session?.user.id!==ownerId)throw new Error('登录状态已改变，位置未保存。');
+   if(currentOwner.current!==ownerId||accountRequest.current!==accountSeq)throw new Error('登录状态已改变，位置未保存。');
+   const {data,error}=await supabase.from('residents').update(patch).eq('user_id',ownerId).select('user_id,x,y,scenery_x,scenery_y').single();if(error)throw error;
+   if(!data||data.user_id!==ownerId)throw new Error('位置保存失败。');
+   const saved=residentPositions(data);setResidents(rows=>rows.map(row=>row.user_id===ownerId?{...row,...saved}:row));
+   if(currentOwner.current===ownerId&&accountRequest.current===accountSeq){accountPosition.current=saved;setDraft(value=>value.user_id===ownerId?{...value,...saved}:value);}
+  }catch(error){
+   setResidents(rows=>rows.map(row=>row.user_id===ownerId?{...row,...previous}:row));
+   if(currentOwner.current===ownerId&&accountRequest.current===accountSeq){accountPosition.current=previous;setDraft(value=>value.user_id===ownerId?{...value,...previous}:value);setNotice(error instanceof Error?error.message:'位置保存失败，请重试。');}
+  }finally{
+   if(pendingPosition.current===pending){request.current++;pendingPosition.current=null;setPositionBusy(false);void refresh();}
+  }
+ };
  const save=async()=>{
-  if(!authResolved||!accountReady)return;if(!user){setAuth(true);return;}
+  if(!authResolved||!accountReady||positionBusy||pendingPosition.current)return;if(!user){setAuth(true);return;}
   const err=validateResident(draft);if(err){setNotice(err);return;}if(!supabase)return;
   if(draft.user_id!==user.id){setNotice('草稿不属于当前账号，请重新读取形象。');return;}
   const accountSeq=accountRequest.current;setSaving(true);
   try{
    const {data:sessionData,error:sessionError}=await supabase.auth.getSession();if(sessionError)throw sessionError;
    if(sessionData.session?.user.id!==user.id){setUser(sessionData.session?.user??null);setNotice('登录状态已改变，请重新读取形象后保存。');return;}
-   const position=accountPosition.current??{x:20+Math.random()*60,y:25+Math.random()*50};
+   const position=accountPosition.current??residentPositions({x:20+Math.random()*60,y:25+Math.random()*50});
    const payload:Resident={user_id:user.id,name:draft.name.trim(),avatar:draft.avatar,scenery:draft.scenery,messages:draft.messages,...position};
    const {data,error}=await supabase.from('residents').upsert(payload,{onConflict:'user_id'}).select('*').single();if(error)throw error;
    if(!validResidentDraft(data)||data.user_id!==user.id)throw new Error('保存结果读取失败。');
    if(accountSeq!==accountRequest.current)return;
    try{localStorage.removeItem(accountDraftBackupKey(user.id));}catch{}
-   setDraft(data);accountPosition.current={x:data.x,y:data.y};setAlternatives([]);
+   setDraft(data);accountPosition.current=residentPositions(data);setAlternatives([]);
    if(adoptedAnonymous.current){anonymousDraft.current=emptyDraft();try{localStorage.setItem(anonymousDraftKey,JSON.stringify(anonymousDraft.current));}catch{}adoptedAnonymous.current=false;}
    setEditor(false);setNotice('已保存。');await refresh();
   }catch(error){setNotice(error instanceof Error?error.message:'保存失败，草稿仍保留，请稍后重试。');}
   finally{setSaving(false);}
  };
  const next=()=>{setLine(n=>n+1);};const current=selected?.messages[line];
- return <main className="openworld"><a className="world-brand" href="./" aria-label="自由 · openworld"><span>（自由）</span><small>openworld</small></a>{intro&&<div className="intro" aria-hidden="true">（自由）</div>}<section className="world" aria-label="自由世界，拖动空白处漫游" onPointerDown={e=>{if(e.button!==0||(e.target as HTMLElement).closest('button'))return;e.currentTarget.setPointerCapture(e.pointerId);drag.current={x:e.clientX,y:e.clientY,px:pan.x,py:pan.y};moved.current=false;}} onPointerMove={e=>{if(drag.current){const dx=e.clientX-drag.current.x,dy=e.clientY-drag.current.y;if(Math.abs(dx)+Math.abs(dy)>4)moved.current=true;setPan({x:drag.current.px+dx,y:drag.current.py+dy});}}} onPointerUp={()=>{drag.current=null;}} onPointerCancel={()=>{drag.current=null;}}><div className="world-content" style={{transform:`translate(${pan.x}px,${pan.y}px) scale(${zoom})`}}>{worldResidents.map(r=><button className="resident" key={r.user_id} style={{left:`${r.x}%`,top:`${r.y}%`}} onClick={()=>{openResident(r);}}><img className="scenery" src={pixelImage(r.scenery)} alt=""/><img src={pixelImage(r.avatar)} alt={residentName(r.name)}/><span>{residentName(r.name)}</span></button>)}</div>{loading&&<span className="sr-only" role="status">加载中</span>}</section><nav className="world-actions" aria-label="绘画"><Button onClick={()=>openEditor('avatar')}>（你）</Button><Button onClick={()=>openEditor('scenery')}>（世界）</Button></nav>
+ return <main className="openworld"><a className="world-brand" href="./" aria-label="自由 · openworld"><span>（自由）</span><small>openworld</small></a>{intro&&<div className="intro" aria-hidden="true">（自由）</div>}<WorldCanvas residents={worldResidents} ownerId={user?.id??null} moving={saving||positionBusy||!accountReady} loading={loading} zoom={zoom} pan={pan} onPan={setPan} onOpen={openResident} onMove={(resident,patch)=>void moveResident(resident,patch)}/><nav className="world-actions" aria-label="绘画"><Button onClick={()=>openEditor('avatar')}>（你）<small>You</small></Button><Button onClick={()=>openEditor('scenery')}>（世界）<small>World</small></Button></nav>
  <Dialog open={!!selected} onOpenChange={open=>{if(!open){setSelected(null);}}}><DialogContent className="dialogue-modal" showCloseButton={false}><DialogTitle className="sr-only">与{residentName(selected?.name)}对话</DialogTitle><DialogDescription className="sr-only">逐条阅读居民留下的话，也可以手动开启音乐。</DialogDescription>{selected&&current&&<><Button className="close" aria-label="关闭对话" onClick={()=>{setSelected(null);}}><X/></Button><div className="dialogue-body"><img src={pixelImage(selected.avatar)} alt=""/><div><small>{residentName(selected.name)}</small><p key={line}>{current.text}</p></div></div><div className="dialogue-controls"><span>{String(line+1).padStart(2,'0')} / {String(selected.messages.length).padStart(2,'0')}</span>{current.soundcloud?<Button className="music-toggle" onClick={()=>musicPlayer.current?.play(current.soundcloud,{residentId:selected.user_id,name:residentName(selected.name)})}><Music2 size={15}/>播放音乐</Button>:null}<Button className="quiet" onClick={()=>line+1<selected.messages.length?next():setSelected(null)}>{line+1<selected.messages.length?'继续':'关闭'}<ChevronRight size={14}/></Button></div></>}</DialogContent></Dialog>
- <Dialog open={editor} onOpenChange={setEditor}><DialogContent className="editor-modal"><DialogTitle className="editor-title">{editorMode==='avatar'?'（你）':'（世界）'}</DialogTitle><DialogDescription className="sr-only">50×50 像素画布</DialogDescription><ResidentEditor key={editorMode} mode={editorMode} draft={draft} onChange={next=>{if(draftReady&&authResolved&&accountReady&&next.user_id===(user?.id??''))setDraft(next);}} onSave={()=>void save()} saving={saving} signedIn={!!user} accountReady={draftReady&&authResolved&&accountReady} accountLoading={accountLoading} accountError={accountError} onLogin={()=>setAuth(true)} onSignOut={()=>void signOut()} onRetryAccount={()=>setAccountReload(n=>n+1)} alternatives={alternatives} onUseLocalDraft={useLocalDraft} onKeepSaved={keepSavedDraft}/></DialogContent></Dialog>
+ <Dialog open={editor} onOpenChange={setEditor}><DialogContent className="editor-modal"><DialogTitle className="editor-title">{editorMode==='avatar'?'（你）':'（世界）'}<small>{editorMode==='avatar'?'You':'World'}</small></DialogTitle><DialogDescription className="sr-only">选择像素画布尺寸，自由绘画</DialogDescription><ResidentEditor key={editorMode} mode={editorMode} draft={draft} onChange={next=>{if(draftReady&&authResolved&&accountReady&&next.user_id===(user?.id??''))setDraft(next);}} onSave={()=>void save()} saving={saving||positionBusy} signedIn={!!user} accountReady={draftReady&&authResolved&&accountReady} accountLoading={accountLoading} accountError={accountError} onLogin={()=>setAuth(true)} onSignOut={()=>void signOut()} onRetryAccount={()=>setAccountReload(n=>n+1)} alternatives={alternatives} onUseLocalDraft={useLocalDraft} onKeepSaved={keepSavedDraft}/></DialogContent></Dialog>
  <Dialog open={auth} onOpenChange={setAuth}><DialogContent className="auth-modal"><DialogTitle className="auth-title">登录</DialogTitle><DialogDescription className="sr-only">选择登录方式</DialogDescription><Button className="oauth" disabled={saving} onClick={()=>void login('google')}><span className="google-mark">G</span>使用 Google 登录<ArrowUpRight size={16}/></Button><Button className="oauth" disabled={saving} onClick={()=>void login('github')}><Code2 size={18}/>使用 GitHub 登录<ArrowUpRight size={16}/></Button>{!supabase&&<p className="connection-note">尚未连接 Supabase。草稿已保留。</p>}<Button className="wander" onClick={()=>setAuth(false)}>关闭</Button></DialogContent></Dialog>
  <MusicPlayer ref={musicPlayer}/>
  {notice&&<div className="notice" role="status"><span>{notice}</span>{supabase&&notice.includes('读取世界')&&<Button className="quiet" onClick={()=>void refresh()}>刷新</Button>}<Button aria-label="关闭提示" className="icon-button" onClick={()=>setNotice('')}><X size={16}/></Button></div>}

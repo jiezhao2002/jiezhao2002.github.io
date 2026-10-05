@@ -1,11 +1,18 @@
 export const SIZE = 50;
+export const CANVAS_SIZES = [50, 100, 150, 200] as const;
 export type Pixels = (string | null)[];
 export type Message = { text: string; soundcloud: string };
-export type Resident = { user_id: string; name: string; avatar: Pixels; scenery: Pixels; messages: Message[]; x: number; y: number };
+export type Resident = { user_id: string; name: string; avatar: Pixels; scenery: Pixels; messages: Message[]; x: number; y: number; scenery_x?: number | null; scenery_y?: number | null };
 export const residentName = (name?: string) => name?.trim() || '佚名';
-export const blank = (): Pixels => Array(SIZE * SIZE).fill(null);
+export const blank = (size: number = SIZE): Pixels => Array(size * size).fill(null);
 export const coloredCount = (pixels: Pixels) => pixels.filter(Boolean).length;
-export function validPixels(value: unknown): value is Pixels { return Array.isArray(value) && value.length === 2500 && value.every(c => c === null || (typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c))); }
+export function canvasSize(pixels: Pixels): number { const size = Math.sqrt(pixels.length); return CANVAS_SIZES.some(value => value === size) ? size : SIZE; }
+export function resizePixels(pixels: Pixels, size: number): Pixels {
+ if (!CANVAS_SIZES.some(value => value === size)) throw new Error('画布尺寸必须是 50、100、150 或 200。');
+ const previousSize = canvasSize(pixels);
+ return Array.from({length:size*size}, (_, i) => pixels[Math.floor(Math.floor(i/size)*previousSize/size)*previousSize+Math.floor((i%size)*previousSize/size)] ?? null);
+}
+export function validPixels(value: unknown): value is Pixels { return Array.isArray(value) && CANVAS_SIZES.some(size => value.length === size*size) && value.every(c => c === null || (typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c))); }
 // Keep the accepted format identical to public.valid_dialogues in Supabase.
 export function soundcloudURL(value: string) { return !/\s/.test(value) && /^https:\/\/(www\.)?soundcloud\.com\/[^/?#\s]+\/[^/?#\s]+([?#][^\s]*)?$/.test(value); }
 export const emptyResidentDraft = (): Resident => ({ user_id: '', name: '', avatar: blank(), scenery: blank(), messages: [{ text: '', soundcloud: '' }], x: 50, y: 45 });
@@ -15,7 +22,9 @@ export function validResidentDraft(value: unknown): value is Resident {
  return typeof r.user_id === 'string' && typeof r.name === 'string' && validPixels(r.avatar) && validPixels(r.scenery)
   && Array.isArray(r.messages) && r.messages.length >= 1 && r.messages.length <= 15
   && r.messages.every(m => !!m && typeof m === 'object' && typeof m.text === 'string' && typeof m.soundcloud === 'string')
-  && typeof r.x === 'number' && Number.isFinite(r.x) && typeof r.y === 'number' && Number.isFinite(r.y);
+  && typeof r.x === 'number' && Number.isFinite(r.x) && typeof r.y === 'number' && Number.isFinite(r.y)
+  && (r.scenery_x == null || (typeof r.scenery_x === 'number' && Number.isFinite(r.scenery_x)))
+  && (r.scenery_y == null || (typeof r.scenery_y === 'number' && Number.isFinite(r.scenery_y)));
 }
 export type LocalDraftAlternative = { kind: 'anonymous' | 'account'; draft: Resident };
 const hasDraftContent = (r: Resident) => !!r.name.trim() || coloredCount(r.avatar) > 0 || coloredCount(r.scenery) > 0 || r.messages.some(m => !!m.text.trim() || !!m.soundcloud);
@@ -32,14 +41,14 @@ export function resolveAccountDraft(userId: string, saved: Resident | null, anon
 }
 export function validateResident(r: Resident) {
  if (r.name.length > 30) return '名字最多 30 字。';
- if (!validPixels(r.avatar) || !validPixels(r.scenery)) return '画布必须是 50×50 像素。';
+ if (!validPixels(r.avatar) || !validPixels(r.scenery)) return '画布必须是 50、100、150 或 200 像素的正方形。';
  if (coloredCount(r.avatar) < 10) return '请为自己画上至少 10 个有色像素。';
  if (coloredCount(r.scenery) > 0 && coloredCount(r.scenery) < 10) return '街景请至少画 10 个有色像素，或保持空白。';
  if (r.messages.length < 1 || r.messages.length > 15 || r.messages.some(m => !m.text.trim() || m.text.length > 500)) return '请设置 1–15 条对话，每条 1–500 字。';
  if (r.messages.some(m => m.soundcloud && !soundcloudURL(m.soundcloud))) return '音乐请填写有效的 https://soundcloud.com/艺人/歌曲 链接。';
  return null;
 }
-export function pixelSVG(p: Pixels) { return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" shape-rendering="crispEdges">${p.map((c,i) => c ? `<rect x="${i%50}" y="${Math.floor(i/50)}" width="1" height="1" fill="${c}"/>` : '').join('')}</svg>`; }
+export function pixelSVG(p: Pixels) { const size=canvasSize(p);return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges">${p.map((c,i) => c ? `<rect x="${i%size}" y="${Math.floor(i/size)}" width="1" height="1" fill="${c}"/>` : '').join('')}</svg>`; }
 export function pixelImage(p: Pixels) { return `data:image/svg+xml,${encodeURIComponent(pixelSVG(p))}`; }
 function illustration(kind: number, color: string): Pixels {
  const p=blank(); const box=(x:number,y:number,w:number,h:number,c:string)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)if(i>=0&&i<50&&j>=0&&j<50)p[j*50+i]=c;};

@@ -1,9 +1,9 @@
 -- Run once in Supabase SQL editor. Pixel arrays are the canonical image data:
--- exactly 2500 entries, each null (transparent) or a safe #RRGGBB color.
+-- 50×50, 100×100, 150×150 or 200×200 entries; null is transparent.
 create or replace function public.valid_pixel_canvas(p jsonb, minimum integer)
 returns boolean language sql immutable set search_path = '' as $$
  select case when jsonb_typeof(p) <> 'array' then false
- when jsonb_array_length(p) <> 2500 then false
+ when jsonb_array_length(p) not in (2500,10000,22500,40000) then false
  else (select count(*) filter(where v <> 'null'::jsonb) >= minimum
  and bool_and(v = 'null'::jsonb or (jsonb_typeof(v) = 'string' and (v #>> '{}') ~ '^#[0-9a-fA-F]{6}$')) from jsonb_array_elements(p) as t(v)) end
 $$;
@@ -25,6 +25,8 @@ create table public.residents (
  messages jsonb not null check (public.valid_dialogues(messages)),
  x double precision not null check (x between 5 and 95),
  y double precision not null check (y between 10 and 90),
+ scenery_x double precision check (scenery_x between 5 and 95),
+ scenery_y double precision check (scenery_y between 10 and 90),
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now()
 );

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { blank, validPixels, validateResident, pixelSVG, soundcloudURL, emptyResidentDraft, validResidentDraft, resolveAccountDraft, type Resident } from '../lib/world.ts';
+import { blank, validPixels, validateResident, pixelSVG, soundcloudURL, emptyResidentDraft, validResidentDraft, resolveAccountDraft, canvasSize, resizePixels, CANVAS_SIZES, type Resident } from '../lib/world.ts';
 const sample=():Resident=>({user_id:'test',name:'朋友',avatar:blank().map((c,i)=>i<10?'#667b56':c),scenery:blank(),messages:[{text:'你好',soundcloud:''}],x:50,y:50});
 test('transparent 50×50 canvas and safe SVG',()=>{assert.equal(blank().length,2500);assert.ok(blank().every(p=>p===null));assert.equal(validPixels(['#667b56']),false);const bad=blank();bad[0]='<script>';assert.equal(validPixels(bad),false);assert.equal((pixelSVG(sample().avatar).match(/<rect/g)||[]).length,10);assert.ok(!pixelSVG(blank()).includes('<rect'));});
 test('requires 10 colored pixels, 1–15 nonempty dialogues, optional scenery',()=>{const r=sample();r.name='';assert.equal(validateResident(r),null);r.avatar[0]=null;assert.ok(validateResident(r));r.avatar[0]='#667b56';r.messages=[];assert.ok(validateResident(r));r.messages=Array.from({length:16},()=>({text:'你好',soundcloud:''}));assert.ok(validateResident(r));r.messages=[{text:' ',soundcloud:''}];assert.ok(validateResident(r));r.messages=[{text:'你好',soundcloud:''}];r.scenery[0]='#667b56';assert.ok(validateResident(r));});
@@ -36,5 +36,14 @@ test('a returning unpublished account keeps its later edits and offers the earli
 });
 test('stored drafts require ownership, safe pixels, dialogue shape and finite positions',()=>{
  assert.ok(validResidentDraft(emptyResidentDraft()));assert.ok(validResidentDraft(sample()));
- for(const value of [{...sample(),user_id:undefined},{...sample(),x:NaN},{...sample(),y:Infinity},{...sample(),messages:[null]},{...sample(),messages:[{text:1,soundcloud:''}]}])assert.equal(validResidentDraft(value),false);
+ for(const value of [{...sample(),user_id:undefined},{...sample(),x:NaN},{...sample(),y:Infinity},{...sample(),scenery_x:NaN},{...sample(),scenery_y:'30'},{...sample(),messages:[null]},{...sample(),messages:[{text:1,soundcloud:''}]}])assert.equal(validResidentDraft(value),false);
+});
+test('all selectable canvas resolutions validate and render their actual pixel coordinates',()=>{
+ for(const size of CANVAS_SIZES){const pixels=blank(size);pixels[size*size-1]='#123456';assert.equal(validPixels(pixels),true);assert.equal(canvasSize(pixels),size);const svg=pixelSVG(pixels);assert.ok(svg.includes(`viewBox="0 0 ${size} ${size}"`));assert.ok(svg.includes(`<rect x="${size-1}" y="${size-1}"`));const r={...sample(),avatar:blank(size).map((pixel,i)=>i<10?'#123456':pixel),scenery:blank(size)};assert.equal(validateResident(r),null);assert.equal(validResidentDraft(r),true);}
+ assert.equal(validPixels(blank(75)),false);assert.equal(validPixels(blank(201)),false);
+});
+test('canvas resizing preserves proportion and transparent areas with nearest-neighbor sampling',()=>{
+ const pixels=blank();pixels[0]='#123456';pixels[2499]='#abcdef';const larger=resizePixels(pixels,100);
+ assert.equal(larger.length,10000);assert.equal(larger[0],'#123456');assert.equal(larger[1],'#123456');assert.equal(larger[100],'#123456');assert.equal(larger[101],'#123456');assert.equal(larger[2],null);assert.equal(larger[9999],'#abcdef');assert.deepEqual(resizePixels(larger,50),pixels);
+ assert.throws(()=>resizePixels(pixels,75));assert.deepEqual(resizePixels(pixels,50),pixels);assert.notEqual(resizePixels(pixels,50),pixels);
 });
