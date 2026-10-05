@@ -13,7 +13,7 @@ import {
   worksForPage,
   worksFromSearch,
   workHref,
-} from "./site-core.mjs?v=20261004-tree";
+} from "./site-core.mjs?v=20261006-translations";
 
 let works = worksFromSearch(window.location.search, baseWorks);
 const shell = document.querySelector(".site-shell");
@@ -156,7 +156,7 @@ async function renderDetail(workId) {
   detailBody.innerHTML = "<p>Loading...</p>";
 
   try {
-    const response = await fetch(`${work.md}?v=20261004-tree`);
+    const response = await fetch(`${work.md}?v=20261006-translations`);
     if (!response.ok) throw new Error("Missing markdown");
     const markdown = await response.text();
     

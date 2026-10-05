@@ -60,7 +60,7 @@ export let baseWorks = [
     "id": "moral-machine-en",
     "page": "writing",
     "title": "The Moral Machine",
-    "summary": "I've never finished a single book by ___, but I feel that these thoughts circling in my head may also have flowed through his. A person i...",
+    "summary": "I've never finished a book by ___, but I feel the thoughts circling in my head may have passed through his, too. A person is a network of...",
     "cover": "blog/writing/moral-machine-chat.png",
     "md": "blog/writing/moral-machine-en.md"
   },
@@ -75,8 +75,8 @@ export let baseWorks = [
   {
     "id": "personality-magnification-and-spiral-carving-en",
     "page": "writing",
-    "title": "Personality, Magnification, and a Mirror Carved in Spirals.",
-    "summary": "I really do love parallel phrases in threes!",
+    "title": "Personality, Magnification, and Carving the Mirrored Self in Spirals.",
+    "summary": "I do love a good rule of three!",
     "cover": "linear-gradient(128deg, #d2d2d2 0 36%, #eeeeee 36% 70%, #c7c7c7 70%)",
     "md": "blog/writing/personality-magnification-and-spiral-carving-en.md"
   },
