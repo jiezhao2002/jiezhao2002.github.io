@@ -1,10 +1,10 @@
-.world-drawing{position:absolute;transform:translate(-50%,-50%);background:transparent;border:0;border-radius:0;padding:0;touch-action:none;user-select:none;cursor:pointer;width:100px;z-index:2;color:#6b7462}
+.world-drawing{position:absolute;transform:translate(-50%,-50%);background:transparent;border:0;border-radius:0;padding:0;touch-action:none;user-select:none;cursor:pointer;width:100px;z-index:2;color:var(--foreground)}
 .world-drawing img{display:block;width:100%;height:auto;aspect-ratio:1;image-rendering:pixelated;pointer-events:none;user-select:none}
 .world-drawing>span{display:block;width:max-content;max-width:180px;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:13px;margin-top:3px;pointer-events:none}
 .world-scenery{width:160px;z-index:1}
 .world-own{cursor:grab}
 .world-dragging{cursor:grabbing;z-index:3}
 .world-actions button{display:flex;flex-direction:column;gap:0}
-.world-actions button small,.editor-title small{display:block;font:10px/1.5 sans-serif;letter-spacing:1px;color:#8b9187}
+.world-actions button small,.editor-title small{display:block;font:10px/1.5 sans-serif;letter-spacing:1px;color:var(--muted-foreground)}
 .editor-title small{font-size:11px;margin-top:2px}
 @media(max-width:700px){.world-drawing{width:75px}.world-scenery{width:105px}}

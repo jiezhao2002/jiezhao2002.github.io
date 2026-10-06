@@ -11,6 +11,7 @@ import { emptyResidentDraft, residentName, pixelImage, validResidentDraft, valid
 import { canMoveResident, residentPositions, type ResidentPositions, type PositionPatch } from '@/lib/positions';
 import { supabase, supabaseURL, supabasePublishableKey } from '@/lib/supabase';
 import { restoreAuthSession } from '@/lib/auth';
+import './dialogue.css';
 const emptyDraft = emptyResidentDraft;
 const anonymousDraftKey = 'openworld-anonymous-draft';
 const accountDraftKey = (id: string) => `openworld-draft:${id}`;
@@ -152,7 +153,24 @@ export default function Home(){
  };
  const next=()=>{setLine(n=>n+1);};const current=selected?.messages[line];
  return <main className="openworld"><a className="world-brand" href="./" aria-label="自由 · openworld"><span>（自由）</span><small>openworld</small></a>{intro&&<div className="intro" aria-hidden="true">（自由）</div>}<WorldCanvas residents={worldResidents} ownerId={user?.id??null} moving={saving||positionBusy||!accountReady} loading={loading} zoom={zoom} pan={pan} onPan={setPan} onOpen={openResident} onMove={(resident,patch)=>void moveResident(resident,patch)}/><nav className="world-actions" aria-label="绘画"><Button onClick={()=>openEditor('avatar')}>（你）<small>You</small></Button><Button onClick={()=>openEditor('scenery')}>（世界）<small>World</small></Button></nav>
- <Dialog open={!!selected} onOpenChange={open=>{if(!open){setSelected(null);}}}><DialogContent className="dialogue-modal" showCloseButton={false}><DialogTitle className="sr-only">与{residentName(selected?.name)}对话</DialogTitle><DialogDescription className="sr-only">逐条阅读居民留下的话，也可以手动开启音乐。</DialogDescription>{selected&&current&&<><Button className="close" aria-label="关闭对话" onClick={()=>{setSelected(null);}}><X/></Button><div className="dialogue-body"><img src={pixelImage(selected.avatar)} alt=""/><div><small>{residentName(selected.name)}</small><p key={line}>{current.text}</p></div></div><div className="dialogue-controls"><span>{String(line+1).padStart(2,'0')} / {String(selected.messages.length).padStart(2,'0')}</span>{current.soundcloud?<Button className="music-toggle" onClick={()=>musicPlayer.current?.play(current.soundcloud,{residentId:selected.user_id,name:residentName(selected.name)})}><Music2 size={15}/>播放音乐</Button>:null}<Button className="quiet" onClick={()=>line+1<selected.messages.length?next():setSelected(null)}>{line+1<selected.messages.length?'继续':'关闭'}<ChevronRight size={14}/></Button></div></>}</DialogContent></Dialog>
+ <Dialog open={!!selected} onOpenChange={open=>{if(!open){setSelected(null);}}}>
+  <DialogContent className="dialogue-modal" showCloseButton={false}>
+   <DialogTitle className="sr-only">与{residentName(selected?.name)}对话</DialogTitle>
+   <DialogDescription className="sr-only">逐条阅读居民留下的话，也可以手动开启音乐。</DialogDescription>
+   {selected&&current&&<>
+    <Button className="dialogue-close" variant="ghost" aria-label="关闭对话" onClick={()=>setSelected(null)}><X/></Button>
+    <div className="dialogue-body" key={line}>
+     <img src={pixelImage(selected.avatar)} alt=""/>
+     <div className="dialogue-text"><small>{residentName(selected.name)}</small><p>{current.text}</p></div>
+    </div>
+    <div className="dialogue-controls">
+     <span className="dialogue-count">{String(line+1).padStart(2,'0')} / {String(selected.messages.length).padStart(2,'0')}</span>
+     {current.soundcloud?<Button className="dialogue-music" variant="ghost" onClick={()=>musicPlayer.current?.play(current.soundcloud,{residentId:selected.user_id,name:residentName(selected.name)})}><Music2 size={15}/>播放音乐</Button>:null}
+     <Button className="dialogue-next" variant="outline" onClick={()=>line+1<selected.messages.length?next():setSelected(null)}>{line+1<selected.messages.length?'继续':'关闭'}<ChevronRight size={14}/></Button>
+    </div>
+   </>}
+  </DialogContent>
+ </Dialog>
  <Dialog open={editor} onOpenChange={setEditor}><DialogContent className="editor-modal"><DialogTitle className="editor-title">{editorMode==='avatar'?'（你）':'（世界）'}<small>{editorMode==='avatar'?'You':'World'}</small></DialogTitle><DialogDescription className="sr-only">选择像素画布尺寸，自由绘画</DialogDescription><ResidentEditor key={editorMode} mode={editorMode} draft={draft} onChange={next=>{if(draftReady&&authResolved&&accountReady&&next.user_id===(user?.id??''))setDraft(next);}} onSave={()=>void save()} saving={saving||positionBusy} signedIn={!!user} accountReady={draftReady&&authResolved&&accountReady} accountLoading={accountLoading} accountError={accountError} onLogin={()=>setAuth(true)} onSignOut={()=>void signOut()} onRetryAccount={()=>setAccountReload(n=>n+1)} alternatives={alternatives} onUseLocalDraft={useLocalDraft} onKeepSaved={keepSavedDraft}/></DialogContent></Dialog>
  <Dialog open={auth} onOpenChange={setAuth}><DialogContent className="auth-modal"><DialogTitle className="auth-title">登录</DialogTitle><DialogDescription className="sr-only">选择登录方式</DialogDescription><Button className="oauth" disabled={saving} onClick={()=>void login('google')}><span className="google-mark">G</span>使用 Google 登录<ArrowUpRight size={16}/></Button><Button className="oauth" disabled={saving} onClick={()=>void login('github')}><Code2 size={18}/>使用 GitHub 登录<ArrowUpRight size={16}/></Button>{!supabase&&<p className="connection-note">尚未连接 Supabase。草稿已保留。</p>}<Button className="wander" onClick={()=>setAuth(false)}>关闭</Button></DialogContent></Dialog>
  <MusicPlayer ref={musicPlayer}/>

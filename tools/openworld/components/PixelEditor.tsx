@@ -11,11 +11,11 @@ export default function PixelEditor({pixels,onChange,label}:{pixels:Pixels;onCha
  const last=useRef<[number,number]|null>(null);
  const history=useRef<Pixels[]>([]);
  const redo=useRef<Pixels[]>([]);
- const [color,setColor]=useState('#667b56');
+ const [color,setColor]=useState('#000000');
  const [erase,setErase]=useState(false);
  const [grid,setGrid]=useState(true);
  const [,setTick]=useState(0);
- const [hue,setHue]=useState(95);
+ const [hue,setHue]=useState(0);
  const [light,setLight]=useState(42);
  const [zoom,setZoom]=useState(1);
  const [cursor,setCursor]=useState<[number,number]>([25,25]);
@@ -29,7 +29,7 @@ export default function PixelEditor({pixels,onChange,label}:{pixels:Pixels;onCha
   ctx.clearRect(0,0,size*unit,size*unit);
   pixels.forEach((c,i)=>{if(c){ctx.fillStyle=c;ctx.fillRect((i%size)*unit,Math.floor(i/size)*unit,unit,unit);}});
   if(grid){
-   ctx.strokeStyle='#626e5618';ctx.lineWidth=1;
+   ctx.strokeStyle='#00000018';ctx.lineWidth=1;
    for(let i=0;i<=size;i++){
     ctx.beginPath();ctx.moveTo(i*unit,0);ctx.lineTo(i*unit,size*unit);ctx.stroke();
     ctx.beginPath();ctx.moveTo(0,i*unit);ctx.lineTo(size*unit,i*unit);ctx.stroke();
@@ -70,6 +70,6 @@ export default function PixelEditor({pixels,onChange,label}:{pixels:Pixels;onCha
     onKeyDown={e=>{let [x,y]=cursor;if(e.key==='ArrowLeft')x--;else if(e.key==='ArrowRight')x++;else if(e.key==='ArrowUp')y--;else if(e.key==='ArrowDown')y++;else if(e.key===' '){e.preventDefault();commitHistory();last.current=null;paint(cursor);last.current=null;return;}else return;e.preventDefault();setCursor([Math.max(0,Math.min(size-1,x)),Math.max(0,Math.min(size-1,y))]);}}/>
   </div>
   <div className="editor-toolbar"><Button className={`tool ${!erase?'active':''}`} aria-label="铅笔" aria-pressed={!erase} onClick={()=>setErase(false)}><Pencil/></Button><Button className={`tool ${erase?'active':''}`} aria-label="橡皮" aria-pressed={erase} onClick={()=>setErase(true)}><Eraser/></Button><div className="divider"/><Button className="tool" aria-label="撤销" disabled={!history.current.length} onClick={undo}><Undo2/></Button><Button className="tool" aria-label="重做" disabled={!redo.current.length} onClick={()=>{const next=redo.current.pop();if(next){history.current.push([...current.current]);apply(next);setTick(v=>v+1);}}}><Redo2/></Button><Button className="tool" aria-label="清空画布，可撤销" onClick={()=>{commitHistory();apply(Array(current.current.length).fill(null));}}><Trash2/></Button><label className="grid-toggle"><input type="checkbox" checked={grid} onChange={e=>setGrid(e.target.checked)}/>网格</label></div>
-  <div className="color-tools"><div className="color-wheel" role="slider" tabIndex={0} aria-label="色轮" aria-valuemin={0} aria-valuemax={359} aria-valuenow={Math.round(hue)} onPointerDown={e=>{const r=e.currentTarget.getBoundingClientRect();const h=(Math.atan2(e.clientY-r.top-r.height/2,e.clientX-r.left-r.width/2)*180/Math.PI+450)%360;setHue(h);setColor(hsl(h,light));setErase(false);}} onKeyDown={e=>{if(!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const h=(hue+(e.key==='ArrowRight'?5:-5)+360)%360;setHue(h);setColor(hsl(h,light));}}><span style={{background:color}}/></div><div className="palette"><div className="swatches">{['#41473d','#667b56','#a7b590','#ceba94','#bd8069','#819aa6','#e6d0b3','#f9f5e9'].map(c=><button key={c} style={{background:c}} aria-label={`选择颜色 ${c}`} className={color===c?'chosen':''} onClick={()=>{setColor(c);setErase(false);}}/>)}</div><label className="lightness">明度<input type="range" min={5} max={95} value={light} onChange={e=>{const l=+e.target.value;setLight(l);setColor(hsl(hue,l));}}/></label><label className="custom-color"><input type="color" value={color} onChange={e=>{setColor(e.target.value);setErase(false);}}/>{color}</label></div></div>
+  <div className="color-tools"><div className="color-wheel" role="slider" tabIndex={0} aria-label="色轮" aria-valuemin={0} aria-valuemax={359} aria-valuenow={Math.round(hue)} onPointerDown={e=>{const r=e.currentTarget.getBoundingClientRect();const h=(Math.atan2(e.clientY-r.top-r.height/2,e.clientX-r.left-r.width/2)*180/Math.PI+450)%360;setHue(h);setColor(hsl(h,light));setErase(false);}} onKeyDown={e=>{if(!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const h=(hue+(e.key==='ArrowRight'?5:-5)+360)%360;setHue(h);setColor(hsl(h,light));}}><span style={{background:color}}/></div><div className="palette"><div className="swatches">{['#000000','#333333','#666666','#999999','#bbbbbb','#dddddd','#eeeeee','#ffffff'].map(c=><button key={c} style={{background:c}} aria-label={`选择颜色 ${c}`} className={color===c?'chosen':''} onClick={()=>{setColor(c);setErase(false);}}/>)}</div><label className="lightness">明度<input type="range" min={5} max={95} value={light} onChange={e=>{const l=+e.target.value;setLight(l);setColor(hsl(hue,l));}}/></label><label className="custom-color"><input type="color" value={color} onChange={e=>{setColor(e.target.value);setErase(false);}}/>{color}</label></div></div>
  </div>;
 }

@@ -1,0 +1,163 @@
+/* A conversation sits on the bottom edge while the world stays visible. */
+[data-slot="dialog-overlay"]:has(+ .dialogue-modal) {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+body:has(.dialogue-modal[data-state="open"]) .notice {
+  top: max(20px, env(safe-area-inset-top));
+  bottom: auto;
+}
+
+[data-slot="dialog-content"].dialogue-modal {
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-width: none;
+  max-height: min(45dvh, 420px);
+  margin: 0;
+  translate: none;
+  transform: none;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 20px;
+  overflow: hidden;
+  padding: 24px max(32px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(32px, env(safe-area-inset-left));
+  border: 0;
+  border-top: 1px solid #111;
+  border-radius: 0;
+  background: #fff;
+  color: #111;
+  box-shadow: none;
+  animation: none;
+}
+
+.dialogue-modal .dialogue-close {
+  position: absolute;
+  top: 14px;
+  right: max(22px, env(safe-area-inset-right));
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  border-radius: 0;
+  background: transparent;
+  color: #111;
+  box-shadow: none;
+}
+
+.dialogue-modal .dialogue-body {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  align-items: start;
+  gap: 28px;
+  width: 100%;
+  max-width: 1100px;
+  min-height: 0;
+  margin: 0 auto;
+  padding: 0 32px 0 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.dialogue-modal .dialogue-body img {
+  width: 80px;
+  height: 80px;
+  image-rendering: pixelated;
+}
+
+.dialogue-modal .dialogue-text {
+  min-width: 0;
+}
+
+.dialogue-modal .dialogue-text small {
+  display: block;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #555;
+}
+
+.dialogue-modal .dialogue-text p {
+  margin: 8px 0 0;
+  font: 18px/1.85 Georgia, "Songti SC", serif;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.dialogue-modal .dialogue-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 1100px;
+  min-width: 0;
+  margin: 0 auto;
+  padding-top: 14px;
+  border-top: 1px solid #ddd;
+}
+
+.dialogue-modal .dialogue-count {
+  flex-shrink: 0;
+  color: #555;
+  font: 12px/1.5 monospace;
+}
+
+.dialogue-modal .dialogue-music,
+.dialogue-modal .dialogue-next {
+  height: 36px;
+  padding: 8px 12px;
+  border-radius: 0;
+  background: transparent;
+  color: #111;
+  font-size: 13px;
+  font-weight: 400;
+  box-shadow: none;
+}
+
+.dialogue-modal .dialogue-next {
+  margin-left: auto;
+  border: 1px solid #111;
+}
+
+.dialogue-modal button:hover {
+  background: #f1f1f1;
+  color: #111;
+}
+
+@media (max-width: 700px) {
+  [data-slot="dialog-content"].dialogue-modal {
+    gap: 14px;
+    padding: 20px max(18px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+  }
+
+  .dialogue-modal .dialogue-close {
+    top: 8px;
+    right: max(10px, env(safe-area-inset-right));
+  }
+
+  .dialogue-modal .dialogue-body {
+    grid-template-columns: 50px minmax(0, 1fr);
+    gap: 14px;
+    padding-right: 22px;
+  }
+
+  .dialogue-modal .dialogue-body img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .dialogue-modal .dialogue-text p {
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  .dialogue-modal .dialogue-controls {
+    gap: 8px;
+    padding-top: 10px;
+  }
+
+  .dialogue-modal .dialogue-music,
+  .dialogue-modal .dialogue-next {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
