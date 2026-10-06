@@ -172,7 +172,7 @@ export default function Home(){
     </div>
     <div className="dialogue-controls">
      <span className="dialogue-count">{String(line+1).padStart(2,'0')} / {String(selected.messages.length).padStart(2,'0')}</span>
-     {current.soundcloud?<Button className="dialogue-music" variant="ghost" onClick={()=>musicPlayer.current?.play(current.soundcloud,{residentId:selected.user_id,name:residentName(selected.name)})}><Music2 size={15}/>播放音乐</Button>:null}
+     {current.soundcloud?<Button className="dialogue-music" variant="ghost" title={`播放${residentName(selected.name)}在听的`} onClick={()=>musicPlayer.current?.play(current.soundcloud,{residentId:selected.user_id,name:residentName(selected.name)})}><Music2 size={15}/><span>播放{residentName(selected.name)}在听的</span></Button>:null}
      <Button className="dialogue-next" variant="outline" onClick={()=>line+1<selected.messages.length?next():setSelected(null)}>{line+1<selected.messages.length?'继续':'关闭'}<ChevronRight size={14}/></Button>
     </div>
    </>}

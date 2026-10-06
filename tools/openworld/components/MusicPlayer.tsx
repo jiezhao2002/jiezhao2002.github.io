@@ -1,6 +1,6 @@
 'use client';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { ChevronDown, Music2, Pause, Play } from 'lucide-react';
+import { ChevronDown, Pause, Play } from 'lucide-react';
 import { MUSIC_HISTORY_KEY, musicProgress, musicURL, readMusicHistory, rememberMusicTrack, type MusicSource, type MusicTrack } from '@/lib/music';
 import { loadSoundCloudAPI, type SoundCloudWidget } from '@/lib/soundcloud';
 import './MusicPlayer.css';
@@ -97,13 +97,13 @@ export default forwardRef<MusicPlayerHandle>(function MusicPlayer(_, ref) {
  const active = history.find(track => track.url === selection?.url) || history[0];
  if (!active) return null;
  return <aside ref={container} className="music-player" aria-label="背景音乐播放器">
-  <div className="music-head"><span>MP3</span><button type="button" className="music-library-toggle" aria-label={expanded ? '收起播放记录' : '展开播放记录'} aria-expanded={expanded} aria-controls="music-library" onClick={() => setExpanded(value => !value)}>曲目 <ChevronDown size={13} className={expanded ? 'expanded' : ''} /></button></div>
-  <div className="music-screen">
-   <div className="music-status"><Music2 size={11} /><span>{playing ? 'PLAY' : 'PAUSE'}</span></div>
-   <p className="music-title" title={active.title}>{active.title}</p>
-   <div className="music-details"><span>{active.source ? `来自〈${active.source.name}〉` : 'SoundCloud'}</span><small>{active.author}</small></div>
+  <div className="music-bar">
+   <button type="button" className="music-play" aria-label={playing ? '暂停音乐' : '继续播放音乐'} onClick={() => playing ? pause() : start(active.url)}>{playing ? <Pause size={15} /> : <Play size={15} />}</button>
+   <button type="button" className="music-label" aria-label={expanded ? '收起播放记录' : '展开播放记录'} aria-expanded={expanded} aria-controls="music-library" onClick={() => setExpanded(value => !value)}>
+    <span className="music-details"><span className="music-title" title={active.title}>{active.title}</span><small>{active.source && `来自〈${active.source.name}〉 · `}{active.author}</small></span><ChevronDown size={13} className={expanded ? 'expanded' : ''} />
+   </button>
+   <a className="music-origin" href={active.url} target="_blank" rel="noreferrer" aria-label={`在 SoundCloud 打开 ${active.title}，作者 ${active.author}`}>SoundCloud ↗</a>
   </div>
-  <div className="music-controls"><button type="button" className="music-play" aria-label={playing ? '暂停音乐' : '继续播放音乐'} onClick={() => playing ? pause() : start(active.url)}>{playing ? <Pause size={19} /> : <Play size={19} />}</button><a className="music-origin" href={active.url} target="_blank" rel="noreferrer" aria-label={`在 SoundCloud 打开 ${active.title}，作者 ${active.author}`}>SoundCloud ↗</a></div>
   {error && <p className="music-error" role="status">{error}</p>}
   <div id="music-library" className={`music-library${expanded ? ' expanded' : ''}`} aria-label="播放记录" aria-hidden={!expanded} inert={!expanded}>
    <ol>{history.map(track => <li key={track.url}><button type="button" className={track.url === active.url ? 'active' : ''} aria-current={track.url === active.url ? 'true' : undefined} onClick={() => start(track.url)}><span>{track.title}</span><small>{track.source && `来自〈${track.source.name}〉 · `}{track.author}</small></button><a href={track.url} target="_blank" rel="noreferrer" aria-label={`在 SoundCloud 打开 ${track.title}，作者 ${track.author}`}>↗</a></li>)}</ol>
