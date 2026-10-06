@@ -154,7 +154,7 @@ export default function Home(){
  const next=()=>{setLine(n=>n+1);};const current=selected?.messages[line];
  return <main className="openworld"><a className="world-brand" href="./" aria-label="自由 · openworld"><span>（自由）</span><small>openworld</small></a>{intro&&<div className="intro" aria-hidden="true">（自由）</div>}<WorldCanvas residents={worldResidents} ownerId={user?.id??null} moving={saving||positionBusy||!accountReady} loading={loading} zoom={zoom} pan={pan} onPan={setPan} onOpen={openResident} onMove={(resident,patch)=>void moveResident(resident,patch)}/><nav className="world-actions" aria-label="绘画"><Button onClick={()=>openEditor('avatar')}>（你）<small>You</small></Button><Button onClick={()=>openEditor('scenery')}>（世界）<small>World</small></Button></nav>
  <Dialog open={!!selected} onOpenChange={open=>{if(!open){setSelected(null);}}}>
-  <DialogContent className="dialogue-modal" showCloseButton={false}>
+  <DialogContent className="dialogue-modal translate-x-0 translate-y-0" showCloseButton={false}>
    <DialogTitle className="sr-only">与{residentName(selected?.name)}对话</DialogTitle>
    <DialogDescription className="sr-only">逐条阅读居民留下的话，也可以手动开启音乐。</DialogDescription>
    {selected&&current&&<>
