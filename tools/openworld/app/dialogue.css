@@ -1,9 +1,4 @@
 /* A conversation sits on the bottom edge while the world stays visible. */
-[data-slot="dialog-overlay"]:has(+ .dialogue-modal) {
-  background: transparent;
-  backdrop-filter: none;
-}
-
 body:has(.dialogue-modal[data-state="open"]) .notice {
   top: max(20px, env(safe-area-inset-top));
   bottom: auto;

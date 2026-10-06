@@ -153,8 +153,15 @@ export default function Home(){
  };
  const next=()=>{setLine(n=>n+1);};const current=selected?.messages[line];
  return <main className="openworld"><a className="world-brand" href="./" aria-label="自由 · openworld"><span>（自由）</span><small>openworld</small></a>{intro&&<div className="intro" aria-hidden="true">（自由）</div>}<WorldCanvas residents={worldResidents} ownerId={user?.id??null} moving={saving||positionBusy||!accountReady} loading={loading} zoom={zoom} pan={pan} onPan={setPan} onOpen={openResident} onMove={(resident,patch)=>void moveResident(resident,patch)}/><nav className="world-actions" aria-label="绘画"><Button onClick={()=>openEditor('avatar')}>（你）<small>You</small></Button><Button onClick={()=>openEditor('scenery')}>（世界）<small>World</small></Button></nav>
- <Dialog open={!!selected} onOpenChange={open=>{if(!open){setSelected(null);}}}>
-  <DialogContent className="dialogue-modal translate-x-0 translate-y-0" showCloseButton={false}>
+ <Dialog modal={false} open={!!selected} onOpenChange={open=>{if(!open){setSelected(null);}}}>
+  <DialogContent className="dialogue-modal translate-x-0 translate-y-0" showCloseButton={false} aria-modal={false}
+   onInteractOutside={event=>{const target=event.detail.originalEvent.target;if(target instanceof Element&&target.closest('.music-player, .world-drawing'))event.preventDefault();}}
+   onKeyDown={event=>{
+    if(event.key!=='Tab'||event.altKey||event.ctrlKey||event.metaKey)return;
+    const buttons=Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')).filter(button=>button.tabIndex>=0&&button.getClientRects().length>0);
+    const edge=event.shiftKey?buttons[0]:buttons.at(-1);
+    if(document.activeElement===edge&&musicPlayer.current?.focus(event.shiftKey?'last':'first'))event.preventDefault();
+   }}>
    <DialogTitle className="sr-only">与{residentName(selected?.name)}对话</DialogTitle>
    <DialogDescription className="sr-only">逐条阅读居民留下的话，也可以手动开启音乐。</DialogDescription>
    {selected&&current&&<>
